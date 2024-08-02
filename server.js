@@ -12,7 +12,7 @@ const state = neru.getInstanceState()
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {
-  res.send('Express and Node are working Fine')
+  res.redirect('/app.html')
 })
 
 

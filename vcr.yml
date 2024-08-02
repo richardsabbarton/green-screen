@@ -4,7 +4,7 @@ instance:
   name: dev
   runtime: nodejs16
   region: aws.euw1
-  application-id: YOUR-VONAGE-API-APPLICATION-ID
+  application-id: 1389caf6-b03d-4e61-8c19-5f76e70ff7b1
   entrypoint: [node, server.js]
   environment:
     - name: YOURVAR1
