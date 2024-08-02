@@ -1,0 +1,22 @@
+{
+  "name": "video-api-testing",
+  "version": "0.0.1",
+  "description": "Node, express, www, JS, Vonage Video API Testing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "neru-alpha": "^4.0.1",
+    "dotenv": "^10.0.0"
+  },
+  "engines": {
+    "node": "12.x"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "express"
+  ]
+}

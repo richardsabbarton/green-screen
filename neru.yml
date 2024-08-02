@@ -1,0 +1,16 @@
+project:
+  name: vcr-hello-world
+instance:
+  name: dev
+  runtime: nodejs16
+  region: aws.euw1
+  application-id: YOUR-VONAGE-API-APPLICATION-ID
+  entrypoint: [node, server.js]
+  environment:
+    - name: YOURVAR1
+      value: "something-secret"
+    - name: YOURVAR2
+      value: "string value"
+debug:
+  name: debug
+  entrypoint: [sh, debug.sh]
