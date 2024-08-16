@@ -13,4 +13,4 @@ instance:
       value: "string value"
 debug:
   name: debug
-  entrypoint: [sh, debug.sh]
+  entrypoint: [node, server.js]

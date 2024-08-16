@@ -1,11 +1,47 @@
 <!DOCTYPE html>
 <html>
   <head>
-
+    <title>Virtual Green-Screen</title>
   </head>
   <body>
+    Room Name: <input id="roomname" type="text" value="default-room"> <br/>
+    <br/>
+    <br/>
+    Your Name: <input id="username" type="text" value=""> <br/>
+    <br/>
+    <br/>
 
+    <button id="presenter-join">Join as Presenter</button><br/>
+    <br/>
+    <button id="participant-join">Join as Participant</button><br/>
+    <br/>
+    <button id="viewer-join">Viewer Only</button><br/>
+    <br/>
+    
+    <script>
 
+      let urlRoomName = new URLSearchParams(window.location.search).get('roomName')
+      let urlUserName = new URLSearchParams(window.location.search).get('userName')
+
+      let roomInput = document.getElementById('roomname')
+      let userInput = document.getElementById('username')
+
+      document.getElementById('presenter-join').onclick = (event)=>{
+        enterRoom(roomInput.value, userInput.value, 'presenter')
+      }
+      document.getElementById('participant-join').onclick = (event)=>{
+        enterRoom(roomInput.value, userInput.value, 'participant')
+      }
+      document.getElementById('viewer-join').onclick = (event)=>{
+        enterRoom(roomInput.value, userInput.value, 'viewer')
+      }
+
+      function enterRoom(roomName, participantName, role){
+        let url = `./liveroom.html?roomName=${roomName}&userName=${participantName}&userRole=${role}`
+        console.log(`Loading url: ${url}`)
+        window.location = url
+      }
+    </script>
 
   </body>
 </html>
