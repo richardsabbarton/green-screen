@@ -1,7 +1,7 @@
 project:
-  name: vcr-hello-world
+  name: green-screen-hackathon-demo-2024
 instance:
-  name: dev
+  name: srv
   runtime: nodejs16
   region: aws.euw1
   application-id: 1389caf6-b03d-4e61-8c19-5f76e70ff7b1

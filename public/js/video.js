@@ -134,7 +134,7 @@ class CameraPublisher {
         this.videoElement = false
         this.publisherDiv = document.createElement("div")
         this.publisherDiv.id = "videopublishcontainer"
-        //this.publisherDiv.style.display = "none"
+        this.publisherDiv.style.display = "none"
         document.body.append(this.publisherDiv)
         document.querySelector('#participants').append(this.outputCanvas)
 
@@ -304,17 +304,11 @@ class VideoRenderer {
 
     adjustPixel(r,g,b,a){
         let c = {r: r, g: g, b: b, a: a}
-        let range = this.transparencyThreshold
-        if(this.withinRange(r, b, 10) &&
-           this.withinRange(g, 180, range * 4)){
-            //c.a = 0
-        }
 
         let rb = (r + b) / 2
-        if((this.withinRange(r, b, 40) && g - rb > 20))
+        if((this.withinRange(r, b, 40) && g - rb > 20)){
             c.a = 0
-        
-        
+        }
         return c
     }
 
