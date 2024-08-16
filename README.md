@@ -39,7 +39,36 @@ Because of variations in colour, hue and saturation, we cannot just replace the 
 
 #### Colour Selection
 
+```
+r:40 g:200 b:40
+```
 
+This is the specific shade of green that has been chosen as working best with the following functions.  They are executed on each pixel of the incoming (or publisher) media stream per frame.
+
+```
+    adjustPixel(r,g,b,a){
+        let c = {r: r, g: g, b: b, a: a} // The current colour of the pixel
+        let rb = (r + b) / 2 // Get the red/blue average
+        if((this.withinRange(r, b, 40) && g - rb > 20)){
+            // If red and blue are close enough together
+            // and the green is more than 20 more than the
+            // average of the two then the shade must be
+            // green (enough) to be marked as transparen.
+            c.a = 0
+        }
+        return c
+    }
+
+    withinRange(val1, val2, range){
+        let diff = val1 - val2
+        if(diff < 0) diff = diff * -1
+        if(diff < range){
+            return true
+        } else {
+            return false
+        }
+    }
+```
 
 
 
