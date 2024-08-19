@@ -70,6 +70,12 @@ This is the specific shade of green that has been chosen as working best with th
     }
 ```
 
+### Performance
+
+#### Lighting
+
+The background detection and replacement functions work better when there is good lighting on the participant.  This may not function in low light scenarios.
+
 
 
 
