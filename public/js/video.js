@@ -159,6 +159,7 @@ class CameraPublisher {
 
         this.publisher.on('audioLevelUpdated',(event)=>{
             if(event.audioLevel > 0.2){
+                this.renderer.enable()
                 this.opacity = 1.0
                 this.fadeDelay = 120
             } else {
@@ -169,6 +170,10 @@ class CameraPublisher {
                 }
             }
             this.outputCanvas.style.opacity = this.opacity
+            if(this.opacity <= 0.0){
+                this.opacity = 0.0
+                this.renderer.disable()
+            }
         })
     }
 }
@@ -223,6 +228,9 @@ class CameraSubscriber {
         this.subscriber.on('audioLevelUpdated',(event)=>{
 
             if(event.audioLevel > 0.2){
+                this.renderer.enable()
+                document.body.remove(this.outputCanvas)
+                document.querySelector('#participants').prepend(this.outputCanvas)
                 this.opacity = 1.0
                 this.fadeDelay = 120
             } else {
@@ -233,6 +241,10 @@ class CameraSubscriber {
                 }
             }
             this.outputCanvas.style.opacity = this.opacity
+            if(this.opacity <= 0.0){
+                this.opacity = 0.0
+                this.renderer.disable()
+            }
         })
     }
 
@@ -249,10 +261,25 @@ class VideoRenderer {
         this.height = sourcevideo.videoHeight
         this.outputCanvas = outputcanvas
         this.builderCanvas = document.createElement("canvas")
+        this.enabled = false
         
     }
 
+    enable(){
+        if(!this.enabled){
+           this.enabled = true
+            this.processFrames() 
+        }
+        
+    }
+
+    disable(){
+        this.enabled = false
+    }
+
     processFrames(){
+        if(!this.enabled) return
+
         this.width = this.videoElement.videoWidth
         this.height = this.videoElement.videoHeight
 
