@@ -2,15 +2,33 @@
 
 class Video {
     constructor(credentialsObject, configurationObject){
+        window.video = this
+
         this.credentials = credentialsObject
         this.config = configurationObject
         this.participants = new Array()
         this.mainstage = new Array()
         this.videoSession = false
 
+        this.toolbarOpacity = 0
+        this.toolbarFade = false
+        this.fadeTimeout = false
+
         this.mainstageDiv = document.createElement('div')
         this.mainstageDiv.id = 'mainstage'
         this.mainstageDiv.classList.add('mainstage')
+        
+        window.onmousemove = (event)=>{
+            this.toolbar.style.opacity = '100%'
+            this.toolbarOpacity = 100
+            this.toolbarFade = false
+            clearTimeout(this.fadeTimeout)
+
+            this.fadeTimeout = setTimeout(()=>{
+                this.toolbarFade = true
+                this.fadeOutToolbar()
+            }, 5000)
+        }
         document.body.appendChild(this.mainstageDiv)
 
         this.participantsDiv = document.createElement('div')
@@ -18,6 +36,60 @@ class Video {
         this.participantsDiv.classList.add('participants')
         document.body.appendChild(this.participantsDiv)
 
+        this.toolbar = document.createElement('div')
+        this.toolbar.id = 'toolbar'
+        this.toolbar.classList.add('toolbar')
+        this.toolbar.style.opacity = '0%'
+
+        this.camIcon = new Image()
+        this.camIcon.src = './images/cam.png'
+        this.camIcon.classList.add('btn-icon')
+        
+        this.camButton = document.createElement('button')
+        this.camButton.classList.add('btn-toggle')
+        this.camButton.classList.add('btn-enabled')
+        this.camButton.id = 'cambutton'
+        this.camButton.appendChild(this.camIcon)
+        
+        this.camButton.onclick = (event)=>{
+            if(this.camButton.classList.contains('btn-enabled')){
+                this.camButton.classList.remove('btn-enabled')
+                this.camButton.classList.add('btn-disabled')
+                this.cameraPublisher.publishVideo(false)
+            } else {
+                this.camButton.classList.remove('btn-disabled')
+                this.camButton.classList.add('btn-enabled')
+                this.cameraPublisher.publishVideo(true)
+            }
+        }
+
+        this.micIcon = new Image()
+        this.micIcon.src = './images/mic.png'
+        this.micIcon.classList.add('btn-icon')
+
+        this.micButton = document.createElement('button')
+        this.micButton.classList.add('btn-toggle')
+        this.micButton.classList.add('btn-enabled')
+        this.micButton.id = 'micbutton'
+        this.micButton.appendChild(this.micIcon)
+        
+        this.micButton.onclick = (event)=>{
+            if(this.micButton.classList.contains('btn-enabled')){
+                this.micButton.classList.remove('btn-enabled')
+                this.micButton.classList.add('btn-disabled')
+                this.cameraPublisher.publishAudio(false)
+            } else {
+                this.micButton.classList.remove('btn-disabled')
+                this.micButton.classList.add('btn-enabled')
+                this.cameraPublisher.publishAudio(true)
+            }
+        }
+
+
+        this.toolbar.appendChild(this.camButton)
+        this.toolbar.appendChild(this.micButton)
+
+        document.body.appendChild(this.toolbar)
     }
 
     connectSession(){
@@ -63,6 +135,17 @@ class Video {
     publishScreen(){
         this.screenPublisher = new screenPublisher(this.videoSession)
         this.mainstage.push(this.screenPublisher)
+    }
+
+    fadeOutToolbar(){
+        if(!this.toolbarFade) return
+
+        this.toolbarOpacity--
+        this.toolbar.style.opacity = `${this.toolbarOpacity}%`
+        if(this.toolbarOpacity > 0){
+            window.requestAnimationFrame(()=>{this.fadeOutToolbar()})
+        }
+            
     }
 }
 
@@ -122,6 +205,10 @@ class screenSubscriber {
 class CameraPublisher {
     constructor(OTSession){
         console.log('publishing camera')
+
+        this.video = true
+        this.audio = true
+
         this.session = OTSession
 
         this.audioLevel = 0
@@ -140,6 +227,7 @@ class CameraPublisher {
 
         let publisherOptions = {
             showControls: false,
+            //publishVideo: false, // For debugging - Remove when done
             //resolution: "320x240",
             videoFilter: {
                 type: "backgroundReplacement",
@@ -176,12 +264,33 @@ class CameraPublisher {
             if(this.opacity <= 0.0){
                 this.opacity = 0.0
                 if(this.renderer.enabled){
-                    document.querySelector('#participants').removeChild(this.outputCanvas)
                     this.renderer.disable()
                 }
                                                       
             }
         })
+    }
+
+    publishVideo(b){
+        this.publisher.publishVideo(b)
+        this.video = b
+    }
+
+    publishAudio(b){
+        this.publisher.publishAudio(b)
+        this.audio = b
+    }
+
+    toggleVideo(){
+        this.video = !this.video
+        this.publisher.publishVideo(this.video)
+        return this.video
+    }
+
+    toggleAudio(){
+        this.audio = !this.audio
+        this.publisher.publishAudio(this.audio)
+        return this.audio
     }
 }
 
@@ -191,7 +300,6 @@ class CameraSubscriber {
         this.session = OTSession
         this.stream = OTStream
         this.subscriber = false
-
         this.audioLevel = 0
         this.opacity = 0
         this.fadeDelay = 0
@@ -258,6 +366,12 @@ class CameraSubscriber {
                                                       
             }
         })
+
+        this.subscriber.on('disconnect', (event)=>{
+            console.log('stream: disconnected: removing output')
+            this.renderer.disable()
+            document.querySelector('#participants').removeChild(this.outputCanvas)
+        })
     }
 
     
@@ -267,6 +381,11 @@ class CameraSubscriber {
 
 class VideoRenderer {
     constructor(sourcevideo, outputcanvas){
+        let randomIcon = (Math.floor(Math.random()*14)+1) + '.png'
+        this.imageIcon = new Image()
+        this.imageIcon.src = `/images/${randomIcon}`
+        console.log('Random icon for user: ', this.imageIcon.src)
+        
         this.targetFPS = 30
         this.videoElement = sourcevideo
         this.width = sourcevideo.videoWidth
@@ -295,11 +414,24 @@ class VideoRenderer {
         this.width = this.videoElement.videoWidth
         this.height = this.videoElement.videoHeight
 
+        
+        let sourceImage = this.videoElement
+        //console.log(sourceImage)
+        //console.log(this.videoElement.srcObject.getVideoTracks()[0])
+        if(!this.videoElement.srcObject.getVideoTracks()[0].enabled){
+        //    console.log('updating source image')
+            sourceImage = this.imageIcon
+            this.width = sourceImage.width
+            this.height = sourceImage.height
+        }
+        
         this.builderCanvas.width = this.width
         this.builderCanvas.height = this.height
         let builderCtx = this.builderCanvas.getContext("2d")
         builderCtx.clearRect(0,0,this.width, this.height)
-        builderCtx.drawImage(this.videoElement, 0, 0, this.width, this.height)
+        
+        //console.log(sourceImage)
+        builderCtx.drawImage(sourceImage, 0, 0, this.width, this.height)
 
         this.outputCanvas.width = this.width
         this.outputCanvas.height = this.height
@@ -316,7 +448,7 @@ class VideoRenderer {
             let r = pix[i]
             let g = pix[i+1]
             let b = pix[i+2]
-            let a = 255
+            let a = pix[i+3]
 
             let newColor = this.adjustPixel(r,g,b,a)
 

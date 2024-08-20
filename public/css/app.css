@@ -25,3 +25,35 @@ html, body {
     width: 320px;
     height: 240px;
 }
+
+.toolbar {
+    width: fit-content;
+    padding: 10px;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: none;
+}
+
+.btn-toggle {
+    width: 64px;
+    height: 64px;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 20px;
+    border-style: solid;
+}
+
+.btn-enabled {
+    background-color: greenyellow;
+}
+
+.btn-disabled {
+    background-color: red;
+}
+
+.btn-icon {
+    width: 100%;
+    height: 100%;
+    border-style: none;
+}
