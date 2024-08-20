@@ -2,22 +2,24 @@
 <html>
   <head>
     <title>Virtual Green-Screen</title>
+    <link rel="stylesheet" href="./css/app.css">
   </head>
   <body>
-    Room Name: <input id="roomname" type="text" value="default-room"> <br/>
+  <div class="form-container">
+    <div class="form-label">Room Name</div><input class="form-input" id="roomname" type="text" value="default-room"> <br/>
     <br/>
     <br/>
-    Your Name: <input id="username" type="text" value=""> <br/>
+    <div class="form-label">User Name</div><input class="form-input" id="username" type="text" value=""> <br/>
     <br/>
     <br/>
 
-    <button id="presenter-join">Join as Presenter</button><br/>
+    <button class="form-button" id="presenter-join">Join as Presenter</button><br/>
     <br/>
-    <button id="participant-join">Join as Participant</button><br/>
+    <button class="form-button" id="participant-join">Join as Participant</button><br/>
     <br/>
-    <button id="viewer-join">Viewer Only</button><br/>
+    <button class="form-button" id="viewer-join">Viewer Only</button><br/>
     <br/>
-    
+  </div>
     <script>
 
       let urlRoomName = new URLSearchParams(window.location.search).get('roomName')
