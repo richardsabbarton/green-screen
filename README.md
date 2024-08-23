@@ -5,7 +5,14 @@ https://neru-68eeb4cf-green-screen-hackathon-demo-20-srv.euw1.runtime.vonage.clo
 
 ### How to use the Demo
 
-TODO: UPDATE GUIDE
+#### Prepare your video session
+1. Create session URL for the ***presenter*** by combining the demo URL and the Video Client URL using unique ***roomName*** and ***userName***
+   
+   Example URL: https://neru-68eeb4cf-green-screen-hackathon-demo-20-srv.euw1.runtime.vonage.cloud/liveroom.html?roomName=Awesome-Demo&userName=Maria&userRole=presenter
+3. Using the presenter link prepare the link for the ***participants*** by changing the ***userRole*** in the URL
+
+#### During your video session
+
 
 ## Video Server
 
