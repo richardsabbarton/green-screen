@@ -9,9 +9,13 @@ https://neru-68eeb4cf-green-screen-hackathon-demo-20-srv.euw1.runtime.vonage.clo
 1. Create session URL for the ***presenter*** by combining the demo URL and the Video Client URL using unique ***roomName*** and ***userName***
    
    Example URL: https://neru-68eeb4cf-green-screen-hackathon-demo-20-srv.euw1.runtime.vonage.cloud/liveroom.html?roomName=Awesome-Demo&userName=Maria&userRole=presenter
-3. Using the presenter link prepare the link for the ***participants*** by changing the ***userRole*** in the URL
+3. Using the presenter link prepare the link for the ***participants*** by changing the ***userRole*** at the end of the URL
 
 #### During your video session
+* The presenter will be asked to share the contents of their sceen when joining the session
+* The default device used for input and output sound is the same as the system settings of user's device
+* 'Mute' and 'Disable Camera' buttons are located in the bottom right corner. These buttons are visible and active only when you move your cursor 
+* Once your video session is finished you can simply close the tab in your browser
 
 
 ## Video Server
