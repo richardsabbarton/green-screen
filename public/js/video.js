@@ -1,9 +1,16 @@
-
+// Video Class
+// 
+// Manages the video and display elements
 
 class Video {
     constructor(credentialsObject, configurationObject){
+        // Added for debugging purposes
+        // Makes "video" available in the JS console
+        // Required because this is a module and not 
+        // a standard JS Script
         window.video = this
 
+        // Initialise defaults and lod config and credentials
         this.credentials = credentialsObject
         this.config = configurationObject
         this.participants = new Array()
@@ -14,6 +21,8 @@ class Video {
         this.toolbarFade = false
         this.fadeTimeout = false
 
+        // Configure the mainstage DIV that will hold the 
+        // shared screen/window/tab etc.
         this.mainstageDiv = document.createElement('div')
         this.mainstageDiv.id = 'mainstage'
         this.mainstageDiv.classList.add('mainstage')
@@ -31,11 +40,15 @@ class Video {
         }
         document.body.appendChild(this.mainstageDiv)
 
+        // Create the participants DIV that will hold the
+        // camera feeds of participants that publish to the 
+        // session.
         this.participantsDiv = document.createElement('div')
         this.participantsDiv.id = 'participants'
         this.participantsDiv.classList.add('participants')
         document.body.appendChild(this.participantsDiv)
 
+        // Create a toolbar placeholder for the mute buttons
         this.toolbar = document.createElement('div')
         this.toolbar.id = 'toolbar'
         this.toolbar.classList.add('toolbar')
@@ -92,6 +105,9 @@ class Video {
         document.body.appendChild(this.toolbar)
     }
 
+    // member function: connectSession()
+    // Uses the passed "credentials" object that includes
+    // apiKey, sessionId, and token
     connectSession(){
         return new Promise((resolve, reject)=>{
             this.videoSession = OT.initSession(this.credentials.apiKey, this.credentials.sessionId)
@@ -102,6 +118,7 @@ class Video {
                     reject(error)
                 } else {
                     console.log('session connected')
+                    // Once the session is connected with initialise our callback functions.
                     this.initCallbacks()
                     resolve(this)
                 }
@@ -120,6 +137,7 @@ class Video {
             }
             if(event.stream.videoType == 'screen'){
                 let sub = new screenSubscriber(this.videoSession, event.stream)
+                this.mainstage = new Array()
                 this.mainstage.push(sub)
             }
         })
@@ -378,6 +396,16 @@ class CameraSubscriber {
 }
 
 
+// Class VideoRenderer
+// Handles the rendering of video to the on-screen canvas
+// Accepts and requirequres:
+//      sourcevideo: HTML VIDEO element that is included in the DOM
+//                   Does not have to be visible to the user.
+//      outputcanvas: HTML5 CANVAS element (included in the DOM) 
+//                    to which we need to render the output video.
+//
+//  Video output will be pushed through a green-screen removal
+//  to create a transparent output image from each video frame.
 
 class VideoRenderer {
     constructor(sourcevideo, outputcanvas){
@@ -409,28 +437,31 @@ class VideoRenderer {
     }
 
     processFrames(){
+        // Do not process frames for renderers that are not enabled
         if(!this.enabled) return
 
+        // Set the dimensions of this renderer.  This is the width 
+        // and height of the source video.
         this.width = this.videoElement.videoWidth
         this.height = this.videoElement.videoHeight
 
-        
+        // Set our source image (for processing) to the current video element
         let sourceImage = this.videoElement
-        //console.log(sourceImage)
-        //console.log(this.videoElement.srcObject.getVideoTracks()[0])
+        
+        // If there is no video track then use the iconImage instead
         if(!this.videoElement.srcObject.getVideoTracks()[0].enabled){
-        //    console.log('updating source image')
             sourceImage = this.imageIcon
             this.width = sourceImage.width
             this.height = sourceImage.height
         }
         
+        // Set builder canvas the same size as our source video
+        // then get a context and clear the canvas.
         this.builderCanvas.width = this.width
         this.builderCanvas.height = this.height
         let builderCtx = this.builderCanvas.getContext("2d")
         builderCtx.clearRect(0,0,this.width, this.height)
         
-        //console.log(sourceImage)
         builderCtx.drawImage(sourceImage, 0, 0, this.width, this.height)
 
         this.outputCanvas.width = this.width
@@ -441,10 +472,6 @@ class VideoRenderer {
         var pix = imgdata.data;
 
         for (var i = 0, n = pix.length; i < n; i += 4) {
-            //pix[i  ] = 255 - pix[i  ]; // red
-            //pix[i+1] = 255 - pix[i+1]; // green
-            //pix[i+2] = 255 - pix[i+2]; // blue
-            // i+3 is alpha (the fourth element)
             let r = pix[i]
             let g = pix[i+1]
             let b = pix[i+2]
@@ -460,29 +487,50 @@ class VideoRenderer {
         }
 
         builderCtx.clearRect(0,0,this.width,this.height)
-        // Draw the ImageData at the given (x,y) coordinates.
         builderCtx.putImageData(imgdata, 0, 0)
 
 
         outputCtx.drawImage(this.builderCanvas, 0, 0, this.width, this.height)
 
         this.animationFrameId = window.requestAnimationFrame(()=>{this.processFrames()})
+        // Using anumation frames instead of setTimeout() for efficiency
+        // as this function does not execute when the window is backgrounded
+
         //setTimeout(()=>{
         //    this.processFrames()
         //}, 1000/this.targetFPS )
 
     }
 
+    // Member Function: adjustPixel(r,g,b,a)
+    // Requires: r (red), g (green), b (blue), a (alpha)
+    // Sets 0% opacity to all GREEN pixels
+    // Based on the specific shade of green:
+    //      r:40 g:200 b:40 
+    //
+    // Returns: c = {r: red, g: green: b: blue, a: alpha} // object
     adjustPixel(r,g,b,a){
+        // Create return colour object as copy of original pixel colour
         let c = {r: r, g: g, b: b, a: a}
 
+        // Calculate the "rb" average of red and blue
         let rb = (r + b) / 2
+
+        // if red and blue are within 40 of eachother
+        //     AND
+        // green minus the rb avg. is greater than 20
+        // then this is a green shade because green is higher 
+        // than red and blue are close enough together and 
+        // green is high enough to make a green shade.
         if((this.withinRange(r, b, 40) && g - rb > 20)){
+            // so we set the output alpha to zero (fully transparent)
             c.a = 0
         }
         return c
     }
 
+    // Member Function: withinRange()
+    // Are val1 and val2 within "range" of eachother.
     withinRange(val1, val2, range){
         let diff = val1 - val2
         if(diff < 0) diff = diff * -1
