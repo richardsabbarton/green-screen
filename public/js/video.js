@@ -249,7 +249,7 @@ class CameraPublisher {
             //resolution: "320x240",
             videoFilter: {
                 type: "backgroundReplacement",
-                backgroundImgUrl: "/images/greenscreen.png" // r:40 g:200 b:40
+                backgroundImgUrl: "/images/greenscreen.png" // r:61 g:180 b:59
             }
         }
 
